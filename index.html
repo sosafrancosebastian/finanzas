@@ -141,4 +141,87 @@
     <!-- NAVEGACIÓN INFERIOR (MOBILE BAR) -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 p-2 z-50">
         <div class="max-w-md mx-auto grid grid-cols-4 gap-1 text-center">
-            <button onclick="cambiarSeccion('diario')" id="nav-diario" class="nav-btn py-2 rounded-xl text-emerald-400 flex flex-
+            <button onclick="cambiarSeccion('diario')" id="nav-diario" class="nav-btn py-2 rounded-xl text-emerald-400 flex flex-col items-center gap-1 transition">
+                <i class="fa-solid fa-coins text-lg"></i>
+                <span class="text-[10px] font-medium">Diario</span>
+            </button>
+            <button onclick="cambiarSeccion('checklist')" id="nav-checklist" class="nav-btn py-2 rounded-xl text-slate-400 hover:text-slate-200 flex flex-col items-center gap-1 transition">
+                <i class="fa-solid fa-list-check text-lg"></i>
+                <span class="text-[10px] font-medium">Servicios</span>
+            </button>
+            <button onclick="cambiarSeccion('tarjetas')" id="nav-tarjetas" class="nav-btn py-2 rounded-xl text-slate-400 hover:text-slate-200 flex flex-col items-center gap-1 transition">
+                <i class="fa-solid fa-credit-card text-lg"></i>
+                <span class="text-[10px] font-medium">Tarjetas</span>
+            </button>
+            <button onclick="cambiarSeccion('ahorros')" id="nav-ahorros" class="nav-btn py-2 rounded-xl text-slate-400 hover:text-slate-200 flex flex-col items-center gap-1 transition">
+                <i class="fa-solid fa-vault text-lg"></i>
+                <span class="text-[10px] font-medium">Ahorros</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SCRIPT DE FUNCIONAMIENTO -->
+    <script>
+        // DATOS INICIALES POR DEFECTO
+        const serviciosDefecto = [
+            "Gas", "Luz", "Rentas", "Agua", "Municipalidad", 
+            "Alquiler", "Expensas", "Cochera de Auto", 
+            "Seguro de Auto", "Tarjeta BBVA", "Tarjeta Mercado Pago"
+        ];
+
+        const ahorrosDefecto = [
+            "Mercado Pago", "Naranja X", "UALA", "Prex", 
+            "Bezza", "Personal Pay", "Dolares", "Acciones", "Criptomonedas"
+        ];
+
+        // ESTADO DE LA APP, CARGADO DESDE LOCALSTORAGE
+        let transacciones = JSON.parse(localStorage.getItem('fin_transacciones')) || [];
+        let checklist = JSON.parse(localStorage.getItem('fin_checklist')) || serviciosDefecto.reduce((acc, s) => ({...acc, [s]: false}), {});
+        let cuotas = JSON.parse(localStorage.getItem('fin_cuotas')) || [];
+        let ahorros = JSON.parse(localStorage.getItem('fin_ahorros')) || ahorrosDefecto.reduce((acc, a) => ({...acc, [a]: 0}), {});
+
+        // NAVEGACIÓN
+        function cambiarSeccion(seccion) {
+            ['diario', 'checklist', 'tarjetas', 'ahorros'].forEach(s => {
+                document.getElementById(`seccion-${s}`).classList.add('hidden');
+                document.getElementById(`nav-${s}`).classList.remove('text-emerald-400', 'text-blue-400');
+                document.getElementById(`nav-${s}`).classList.add('text-slate-400');
+            });
+            
+            document.getElementById(`seccion-${seccion}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${seccion}`);
+            activeNav.classList.remove('text-slate-400');
+            activeNav.classList.add(seccion === 'tarjetas' || seccion === 'ahorros' ? 'text-blue-400' : 'text-emerald-400');
+        }
+
+        // --- SECCIÓN 1: DIARIO ---
+        function agregarTransaccion(e) {
+            e.preventDefault();
+            const tipo = document.getElementById('tipo-transaccion').value;
+            const monto = parseFloat(document.getElementById('monto-transaccion').value);
+            const desc = document.getElementById('desc-transaccion').value;
+
+            transacciones.unshift({ id: Date.now(), tipo, monto, desc });
+            guardarYRenderizar();
+            document.getElementById('form-transaccion').reset();
+        }
+
+        function eliminarTransaccion(id) {
+            transacciones = transacciones.filter(t => t.id !== id);
+            guardarYRenderizar();
+        }
+
+        function renderizarDiario() {
+            let totalIngresos = 0;
+            let totalGastos = 0;
+            const lista = document.getElementById('lista-transacciones');
+            
+            if (transacciones.length === 0) {
+                lista.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay movimientos registrados.</p>`;
+            } else {
+                lista.innerHTML = transacciones.map(t => {
+                    if (t.tipo === 'ingreso') totalIngresos += t.monto;
+                    else totalGastos += t.monto;
+
+                    return `
+                        <div class="flex justify-between items-center bg-slate-950/60 p-3 rounded-xl border
