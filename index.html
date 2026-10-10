@@ -3,113 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Finanzas Simples</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- FontAwesome para íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Mis Finanzas</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #030712; color: #f3f4f6; padding-bottom: 90px; }
+        header { background-color: #111827; border-bottom: 1px solid #1f2937; padding: 15px; position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.1rem; color: #34d399; }
+        .btn-reset { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+        main { max-width: 480px; margin: 0 auto; padding: 15px; }
+        .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .saldo-box h2 { font-size: 2rem; margin-top: 5px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1f2937; }
+        input, select { width: 100%; background-color: #030712; border: 1px solid #374151; color: white; padding: 10px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
+        button.submit-btn { width: 100%; background-color: #059669; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        button.submit-btn.blue { background-color: #2563eb; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; background-color: rgba(3, 7, 18, 0.6); border: 1px solid #1f2937; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+        .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; padding: 5px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111827; border-top: 1px solid #1f2937; display: grid; grid-template-columns: repeat(4, 1fr); padding: 8px; z-index: 100; }
+        nav button { background: none; border: none; color: #9ca3af; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; gap: 3px; cursor: pointer; }
+        nav button.active-nav { color: #34d399; }
+        nav button.active-nav.blue-nav { color: #60a5fa; }
+        .tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: bold; }
+        .tag.ingreso { background: rgba(5, 150, 105, 0.2); color: #34d399; }
+        .tag.gasto { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .line-through { text-decoration: line-through; color: #6b7280; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-24">
+<body>
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                <i class="fa-solid fa-wallet"></i> Mis Finanzas
-            </h1>
-            <button onclick="reiniciarMes()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs px-3 py-1.5 rounded-lg border border-red-500/30 transition flex items-center gap-1 font-medium">
-                <i class="fa-solid fa-rotate-right"></i> Reiniciar Mes
-            </button>
-        </div>
+    <header>
+        <h1>💰 Mis Finanzas</h1>
+        <button class="btn-reset" onclick="reiniciarMes()">Reiniciar Mes</button>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main class="max-w-md mx-auto p-4 space-y-6">
-
-        <!-- SECCIÓN 1: BALANCE DIARIO E INGRESOS/GASTOS -->
-        <section id="seccion-diario" class="space-y-4">
-            <!-- Tarjeta de Saldo -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg">
-                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Saldo Actual (Diario)</p>
-                <h2 id="saldo-actual" class="text-3xl font-extrabold mt-1 text-emerald-400">$0.00</h2>
-                <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-800/80">
+    <main>
+        <!-- DIARIO -->
+        <section id="sec-diario" class="section active">
+            <div class="card saldo-box">
+                <p style="font-size: 0.75rem; color: #9ca3af; font-weight: bold;">SALDO ACTUAL (DIARIO)</p>
+                <h2 id="lbl-saldo">$0.00</h2>
+                <div class="grid-2">
                     <div>
-                        <p class="text-xs text-slate-400">Total Ingresos</p>
-                        <p id="total-ingresos" class="text-sm font-bold text-emerald-400">$0.00</p>
+                        <p style="font-size: 0.75rem; color: #9ca3af;">Ingresos</p>
+                        <p id="lbl-ingresos" style="font-weight: bold; color: #34d399;">$0.00</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">Total Gastos</p>
-                        <p id="total-gastos" class="text-sm font-bold text-red-400">$0.00</p>
+                        <p style="font-size: 0.75rem; color: #9ca3af;">Gastos</p>
+                        <p id="lbl-gastos" style="font-weight: bold; color: #f87171;">$0.00</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Formulario de Ingreso/Gasto -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow">
-                <h3 class="text-sm font-semibold text-slate-300 mb-3">Nuevo Movimiento Diario</h3>
-                <form id="form-transaccion" onsubmit="agregarTransaccion(event)" class="space-y-3">
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="tipo-transaccion" class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 10px; color: #d1d5db;">Nuevo Movimiento</h3>
+                <form onsubmit="agregarTransaccion(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <select id="t-tipo">
                             <option value="gasto">Gasto</option>
                             <option value="ingreso">Ingreso</option>
                         </select>
-                        <input type="number" id="monto-transaccion" placeholder="Monto ($)" step="any" required
-                            class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                        <input type="number" id="t-monto" placeholder="Monto ($)" step="any" required>
                     </div>
-                    <input type="text" id="desc-transaccion" placeholder="Descripción (ej. Supermercado)" required
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">
-                        Agregar Movimiento
-                    </button>
+                    <input type="text" id="t-desc" placeholder="Descripción (ej. Supermercado)" required>
+                    <button type="submit" class="submit-btn">Agregar Movimiento</button>
                 </form>
             </div>
 
-            <!-- Lista de Movimientos -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow">
-                <h3 class="text-sm font-semibold text-slate-300 mb-3">Movimientos del Mes</h3>
-                <div id="lista-transacciones" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-500 text-center py-4">No hay movimientos registrados.</p>
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 10px; color: #d1d5db;">Movimientos del Mes</h3>
+                <div id="lista-trans">
+                    <p style="font-size: 0.8rem; color: #6b7280; text-align: center; padding: 10px;">No hay movimientos.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECCIÓN 2: CHECKLIST DE SERVICIOS -->
-        <section id="seccion-checklist" class="hidden space-y-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow">
-                <h3 class="text-sm font-semibold text-slate-300 mb-1">Gastos y Servicios Mensuales</h3>
-                <p class="text-xs text-slate-500 mb-4">Marcá lo que ya fuiste pagando este mes.</p>
-                <div id="lista-checklist" class="space-y-2.5">
-                    <!-- Generado por JS -->
+        <!-- CHECKLIST SERVICIOS -->
+        <section id="sec-checklist" class="section">
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 5px; color: #d1d5db;">Servicios y Gastos Mensuales</h3>
+                <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 15px;">Tocá para marcar como pagado.</p>
+                <div id="lista-check"></div>
+            </div>
+        </section>
+
+        <!-- TARJETAS Y CUOTAS -->
+        <section id="sec-tarjetas" class="section">
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 10px; color: #d1d5db;">Nueva Compra en Cuotas</h3>
+                <form onsubmit="agregarCuota(event)">
+                    <input type="text" id="c-desc" placeholder="Descripción (ej. Zapatillas)" required>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="number" id="c-total" placeholder="Monto Total ($)" step="any" required>
+                        <input type="number" id="c-cuota" placeholder="Valor Cuota ($)" step="any" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="number" id="c-pagadas" placeholder="Pagadas (ej. 2)" required>
+                        <input type="number" id="c-totales" placeholder="Totales (ej. 6)" required>
+                    </div>
+                    <button type="submit" class="submit-btn blue">Guardar Cuota</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 10px; color: #d1d5db;">Mis Compras en Cuotas</h3>
+                <div id="lista-cuotas">
+                    <p style="font-size: 0.8rem; color: #6b7280; text-align: center; padding: 10px;">No hay cuotas.</p>
                 </div>
             </div>
         </section>
 
-        <!-- SECCIÓN 3: TARJETAS Y CUOTAS -->
-        <section id="seccion-tarjetas" class="hidden space-y-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow">
-                <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Compra en Cuotas</h3>
-                <form id="form-cuota" onsubmit="agregarCuota(event)" class="space-y-3">
-                    <input type="text" id="cuota-desc" placeholder="Descripción (ej. Zapatillas)" required
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" id="cuota-total-monto" placeholder="Monto Total ($)" step="any" required
-                            class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                        <input type="number" id="cuota-monto" placeholder="Valor Cuota ($)" step="any" required
-                            class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="number" id="cuotas-pagadas" placeholder="Cuotas pagadas" required
-                            class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                        <input type="number" id="cuotas-totales" placeholder="Cuotas totales" required
-                            class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">
-                        Guardar Cuota
-                    </button>
-                </form>
+        <!-- AHORROS -->
+        <section id="sec-ahorros" class="section">
+            <div class="card" style="background: linear-gradient(to bottom right, #111827, #0f172a);">
+                <p style="font-size: 0.75rem; color: #9ca3af; font-weight: bold;">PATRIMONIO TOTAL EN AHORROS</p>
+                <h2 id="lbl-patrimonio" style="font-size: 2rem; color: #60a5fa; margin-top: 5px;">$0.00</h2>
             </div>
+            <div class="card">
+                <h3 style="font-size: 0.85rem; margin-bottom: 5px; color: #d1d5db;">Billeteras y Activos</h3>
+                <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 15px;">Tocá cualquier ítem para actualizar su saldo.</p>
+                <div id="lista-ahorros"></div>
+            </div>
+        </section>
+    </main>
 
-            <div class
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav>
+        <button onclick="irSeccion('diario', this)" id="nav-diario" class="active-nav">
+            <span>📊</span> Diario
+        </button>
+        <button onclick="irSeccion('checklist', this)" id="nav-checklist">
+            <span>☑️</span> Servicios
+        </button>
+        <button onclick="irSeccion('tarjetas', this)" id="nav-tarjetas">
+            <span>💳</span> Tarjetas
+        </button>
+        <button onclick="irSeccion('ahorros', this)" id="nav-ahorros">
+            <span>💎</span> Ahorros
+        </button>
+    </nav>
+
+    <script>
+        const serviciosDef = ["Gas", "Luz", "Rentas", "Agua", "Municipalidad", "Alquiler", "Expensas", "Cochera de Auto", "Seguro de Auto", "Tarjeta BBVA", "Tarjeta Mercado Pago"];
+        const ahorrosDef = ["Mercado Pago", "Naranja X", "UALA", "Prex", "Bezza", "Personal Pay", "Dolares", "Acciones", "Criptomonedas"];
+
+        let transacciones = JSON.parse(localStorage.getItem('f_trans')) || [];
+        let checklist = JSON.parse(localStorage.getItem('f_check')) || serviciosDef.reduce((acc, s) => ({...acc, [s]: false}), {});
+        let cuotas = JSON.parse(localStorage.getItem('f_cuotas')) || [];
+        let ahorros = JSON.parse(localStorage.getItem('f_ahorros')) || ahorrosDef.reduce((acc, a) => ({...acc, [a]: 0}), {});
+
+        function irSeccion(nombre, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('active-nav', 'blue-nav');
+            });
+            
+            document.getElementById('sec-' + nombre).classList.add('active');
+            btn.classList.add('active-nav');
+            if(nombre === 'tarjetas' || nombre === 'ahorros') btn.classList.add('blue-nav');
+        }
+
+        function agregarTransaccion(e) {
+            e.preventDefault();
+            const tipo = document.getElementById('t-tipo').value;
+            const monto = parseFloat(document.getElementById('t-monto').value);
+            const desc = document.getElementById('t-desc').value;
+
+            if(isNaN(monto) || !desc) return;
+
+            transacciones.unshift({ id: Date.now(), tipo, monto, desc });
+            sincronizar();
+            document.getElementById('t-monto').value = '';
+            document.getElementById('t-desc').value = '';
+        }
+
+        function eliminarTransaccion(id) {
+            transacciones = transacciones.filter(t => t.id !== id);
+            sincronizar();
+        }
+
+        function renderDiario() {
+            let ingresos = 0, gastos = 0;
+            const contenedor = document.getElementById('lista-trans');
+
+            if(transacciones.length === 0) {
+                contenedor.innerHTML = `<p style="font-size: 0.8rem; color: #6b7280; text-align: center; padding: 10px;">No hay movimientos.</p>`;
+            } else {
+                contenedor.innerHTML = transacciones.map(t => {
+                    if(t.tipo === 'ingreso') ingresos += t.monto;
+                    else gastos += t.monto;
+
+                    return `
+                        <div class="item-row">
+                            <div>
+                                <p style="font-weight: 500;">${t.desc}</p>
+                                <span class="tag ${t.tipo}">${t.tipo}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-weight: bold; color: ${t.tipo === 'ingreso' ? '#34d399' : '#f87171'}">
+                                    ${t.tipo === 'ingreso' ? '+' : '-'}$${t.monto.toLocaleString()}
+                                </span>
+                                <button class="del-btn" onclick="eliminarTransaccion(${t.id})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const saldo = ingresos - gastos;
+            document.getElementById('lbl-ingresos').innerText = `$${ingresos.toLocaleString()}`;
+            document.getElementById('lbl-gastos').innerText = `$${gastos.toLocaleString()}`;
+            const lblSaldo = document.getElementById('lbl-saldo');
+            lblSaldo.innerText = `$${saldo.toLocaleString()}`;
+            lblSaldo.style.color = saldo >= 0 ? '#34d399' : '#f87171';
+        }
+
+        function toggleCheck(servicio) {
+            checklist[servicio] = !checklist[servicio];
+            sincronizar();
+        }
+
+        function renderChecklist() {
+            const contenedor = document.getElementById('lista-check');
+            contenedor.innerHTML = Object.keys(checklist).map(s => `
+                <div class="item-row" onclick="toggleCheck('${s}')" style="cursor: pointer;">
+                    <span style="font-size: 0.9rem;" class="${checklist[s] ? 'line-through' : ''}">${s}</span>
+                    <input type="checkbox" ${checklist[s] ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck('${s}')" style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;">
+                </div>
+            `).join('');
+        }
+
+        function agregarCuota(e) {
+            e.preventDefault();
+            const desc = document.getElementById('c-desc').value;
+            const montoTotal = parseFloat(document.getElementById('c-total').value);
+            const montoCuota = parseFloat(document.getElementById('c-cuota').value);
+            const pagadas = parseInt(document.getElementById('c-pagadas').value);
+            const totales = parseInt(document.getElementById('c-totales').value);
+
+            cuotas.push({ id: Date.now(), desc, montoTotal, montoCuota, pagadas, totales });
+            sincronizar();
+            e.target.reset();
+        }
+
+        function eliminarCuota(id) {
+            cuotas = cuotas.filter(c => c.id !== id);
+            sincronizar();
+        }
+
+        function renderCuotas() {
+            const contenedor = document.getElementById('lista-cuotas');
+            if(cuotas.length === 0) {
+                contenedor.innerHTML = `<p style="font-size: 0.8rem; color: #6b7280; text-align: center; padding: 10px;">No hay cuotas.</p>`;
+                return;
+            }
+
+            contenedor.innerHTML = cuotas.map(c => {
+                const restantes = c.totales - c.pagadas;
+                return `
+                    <div class="item-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <strong style="font-size: 0.9rem;">${c.desc}</strong>
+                                <p style="font-size: 0.75rem; color: #9ca3af;">Total: $${c.montoTotal.toLocaleString()}</p>
+                            </div>
+                            <button class="del-btn" onclick="eliminarCuota(${c.id})">🗑️</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; border-top: 1px solid #1f2937; padding-top: 6px;">
+                            <span style="color: #34d399; font-weight: bold;">Cuota: $${c.montoCuota.toLocaleString()}</span>
+                            <span style="color: #9ca3af;">Pagadas: <strong>${c.pagadas}</strong>/${c.totales} (Quedan: <strong style="color: #60a5fa;">${restantes}</strong>)</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function actualizarAhorro(item) {
+            const actual = ahorros[item] || 0;
+            const nuevo = prompt(`Actualizar saldo para ${item}:`, actual);
+            if(nuevo !== null && !isNaN(nuevo)) {
+                ahorros[item] = parseFloat(nuevo);
+                sincronizar();
+            }
+        }
+
+        function renderAhorros() {
+            let total = 0;
+            const contenedor = document.getElementById('lista-ahorros');
+            contenedor.innerHTML = Object.keys(ahorros).map(item => {
+                const monto = ahorros[item];
+                total += monto;
+                return `
+                    <div class="item-row" onclick="actualizarAhorro('${item}')" style="cursor: pointer;">
+                        <span style="font-weight: 500;">${item}</span>
+                        <span style="font-weight: bold; color: #60a5fa;">$${monto.toLocaleString()} ✏️</span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('lbl-patrimonio').innerText = `$${total.toLocaleString()}`;
+        }
+
+        function reiniciarMes() {
+            if(confirm("¿Reiniciar mes? Se borrarán los movimientos diarios y se destildarán los servicios.")) {
+                transacciones = [];
+                checklist = serviciosDef.reduce((acc, s) => ({...acc, [s]: false}), {});
+                sincronizar();
+                alert("¡Mes reiniciado con éxito!");
+            }
+        }
+
+        function sincronizar() {
+            localStorage.setItem('f_trans', JSON.stringify(transacciones));
+            localStorage.setItem('f_check', JSON.stringify(checklist));
+            localStorage.setItem('f_cuotas', JSON.stringify(cuotas));
+            localStorage.setItem('f_ahorros', JSON.stringify(ahorros));
+
+            renderDiario();
+            renderChecklist();
+            renderCuotas();
+            renderAhorros();
+        }
+
+        // Carga inicial
+        sincronizar();
+    </script>
+</body>
+</html>
