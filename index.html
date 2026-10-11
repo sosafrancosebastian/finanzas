@@ -58,7 +58,7 @@
 
             <div class="card">
                 <h3 style="font-size: 0.85rem; margin-bottom: 10px; color: #d1d5db;">Nuevo Movimiento</h3>
-                <form onsubmit="agregarTransaccion(event)">
+                <form id="form-trans" onsubmit="agregarTransaccion(event)">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <select id="t-tipo">
                             <option value="gasto">Gasto</option>
@@ -252,6 +252,20 @@
             sincronizar();
         }
 
+        function avanzarCuota(id) {
+            cuotas = cuotas.map(c => {
+                if (c.id === id) {
+                    if (c.pagadas < c.totales) {
+                        c.pagadas += 1;
+                    } else {
+                        alert("¡Esta compra ya está totalmente pagada!");
+                    }
+                }
+                return c;
+            });
+            sincronizar();
+        }
+
         function renderCuotas() {
             const contenedor = document.getElementById('lista-cuotas');
             if(cuotas.length === 0) {
@@ -270,9 +284,14 @@
                             </div>
                             <button class="del-btn" onclick="eliminarCuota(${c.id})">🗑️</button>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; border-top: 1px solid #1f2937; padding-top: 6px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; border-top: 1px solid #1f2937; padding-top: 6px; align-items: center;">
                             <span style="color: #34d399; font-weight: bold;">Cuota: $${c.montoCuota.toLocaleString()}</span>
                             <span style="color: #9ca3af;">Pagadas: <strong>${c.pagadas}</strong>/${c.totales} (Quedan: <strong style="color: #60a5fa;">${restantes}</strong>)</span>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; pt-2; border-top: 1px dashed #1f2937;">
+                            <button onclick="avanzarCuota(${c.id})" style="background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold;">
+                                + Pagar Cuota (Avanzar)
+                            </button>
                         </div>
                     </div>
                 `;
@@ -326,7 +345,7 @@
             renderAhorros();
         }
 
-        // Carga inicial
+        // Carga inicial al abrir
         sincronizar();
     </script>
 </body>
